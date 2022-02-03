@@ -50,7 +50,7 @@ sub total {
     return $total;
 }
 
-sub total_of {
+sub total_face {
     my $self = shift;
     my $face = shift;
     my $diex = Die::from_face($face)->index();
@@ -86,12 +86,12 @@ sub has_straight_len {
 sub scorecard {
     my $self = shift;
     return [
-        [        "Aces", $self->total_of(1)],
-        [        "Twos", $self->total_of(2)],
-        [      "Threes", $self->total_of(3)],
-        [       "Fours", $self->total_of(4)],
-        [       "Fives", $self->total_of(5)],
-        [       "Sixes", $self->total_of(6)],
+        [        "Aces", $self->total_face(1)],
+        [        "Twos", $self->total_face(2)],
+        [      "Threes", $self->total_face(3)],
+        [       "Fours", $self->total_face(4)],
+        [       "Fives", $self->total_face(5)],
+        [       "Sixes", $self->total_face(6)],
         [ "3 of a Kind", ($self->has_of_a_kind(3) * $self->total())],
         [ "4 of a Kind", ($self->has_of_a_kind(4) * $self->total())],
         [  "Full House", ($self->has_full_house() * 25)],
