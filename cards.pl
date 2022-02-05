@@ -20,20 +20,22 @@ package Rank;
 
 use constant RANKS => qw<2 3 4 5 6 7 8 9 T J Q K A>;
 
-sub new {
-    my $class = shift;
-    my $x = shift;
-    return bless \$x, $class;
+sub repr {
+    return join ', ', map { defined($_) ? (RANKS)[$_] : '<none>' } @_;
 }
 
+
+package Suit;
+
+use constant SUITS => qw<s h d c>;
+
 sub repr {
-    return join ', ', map { $_ ? (RANKS)[$$_] : '' } @_;
+    my $x = shift;
+    return (SUITS)[$x];
 }
 
 
 package Card;
-
-use constant SUITS => qw<s h d c>;
 
 sub new {
     my $class = shift;
@@ -46,19 +48,14 @@ sub rankx {
     return $$self % 13;
 }
 
-sub rank {
+sub suitx {
     my $self = shift;
-    return Rank->new($self->rankx);
-}
-
-sub suit {
-    my $self = shift;
-    return (SUITS)[$$self / 13];
+    return $$self / 13;
 }
 
 sub repr {
     my $self = shift;
-    return $self->rank->repr . $self->suit;
+    return Rank::repr($self->rankx) . Suit::repr($self->suitx);
 }
 
 
@@ -112,20 +109,20 @@ sub repr {
 sub of_a_kind_rank {
     my $self = shift;
     my $kind = shift;
-    my $ranks = $self->{kinds}->[$kind];
+    my $ranks = $self->{kinds}[$kind];
     if (int(@{$ranks}) != 1) {
-        return undef;
+        return ();
     }
-    return Rank->new($ranks->[0]);
+    return @{$ranks};
 }
 
 sub two_pair_ranks {
     my $self = shift;
-    my $ranks = $self->{kinds}->[2];
+    my $ranks = $self->{kinds}[2];
     if (int(@{$ranks}) != 2) {
         return ();
     }
-    return map { Rank->new($_) } @{$ranks};
+    return @{$ranks};
 }
 
 sub full_house_ranks {
@@ -135,5 +132,5 @@ sub full_house_ranks {
     if (!$three or !$two) {
         return ();
     }
-    return map { Rank->new($_) } ($three, $two);
+    return ($three, $two);
 }
