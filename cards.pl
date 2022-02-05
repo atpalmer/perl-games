@@ -5,7 +5,18 @@ use warnings;
 
 my $deck = Deck->new();
 
-print join(', ', map { $_->repr } @$deck ), "\n";
+my $board = Board->deal($deck);
+
+print join(', ', map { $_->repr } @$board), "\n";
+
+package Board;
+
+sub deal {
+    my $class = shift;
+    my $deck = shift;
+    my @board = $deck->deal(5);
+    return bless \@board, $class;
+}
 
 package Deck;
 
@@ -16,6 +27,12 @@ sub new {
     my @cards = shuffle map { Card->new($_) } (0..51);
     return bless \@cards, $class;
 };
+
+sub deal {
+    my $self = shift;
+    my $count = shift;
+    return splice(@$self, 0, $count);
+}
 
 package Card;
 
