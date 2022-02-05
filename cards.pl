@@ -12,6 +12,7 @@ print $board->repr, "\n";
 printf "%20s: %s\n", "Pair", Rank::repr($board->of_a_kind_rank(2));
 printf "%20s: %s\n", "Two Pair", Rank::repr($board->two_pair_ranks());
 printf "%20s: %s\n", "3 of a Kind", Rank::repr($board->of_a_kind_rank(3));
+printf "%20s: %s\n", "Straight", Rank::repr($board->straight_ranks());
 printf "%20s: %s\n", "Full House",  Rank::repr($board->full_house_ranks());
 printf "%20s: %s\n", "4 of a Kind", Rank::repr($board->of_a_kind_rank(4));
 
@@ -133,4 +134,18 @@ sub full_house_ranks {
         return ();
     }
     return ($three, $two);
+}
+
+sub straight_ranks {
+    my $self = shift;
+    my @results = ();
+    for (0..$#{$self->{ranks}}) {
+        if ($self->{ranks}[$_] > 0) {
+            push(@results, $_);
+        } else {
+            @results = ();
+        }
+        return @results if int(@results) == 5;
+    }
+    return ();
 }
