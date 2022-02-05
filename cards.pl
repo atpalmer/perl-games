@@ -13,8 +13,10 @@ printf "%20s: %s\n", "Pair", Rank::repr($board->of_a_kind_rank(2));
 printf "%20s: %s\n", "Two Pair", Rank::repr($board->two_pair_ranks());
 printf "%20s: %s\n", "3 of a Kind", Rank::repr($board->of_a_kind_rank(3));
 printf "%20s: %s\n", "Straight", Rank::repr($board->straight_ranks());
+printf "%20s: %s\n", "Flush", Rank::repr($board->flush_ranks());
 printf "%20s: %s\n", "Full House",  Rank::repr($board->full_house_ranks());
 printf "%20s: %s\n", "4 of a Kind", Rank::repr($board->of_a_kind_rank(4));
+printf "%20s: %s\n", "Straight Flush", Rank::repr($board->straight_flush_ranks());
 
 
 package Rank;
@@ -50,6 +52,7 @@ sub rankx {
 }
 
 sub suitx {
+    use integer;
     my $self = shift;
     return $$self / 13;
 }
@@ -79,7 +82,7 @@ sub deal {
 
 package Board;
 
-use List::Util qw<any>;
+use List::Util qw<any all>;
 
 sub deal {
     my $class = shift;
@@ -95,10 +98,16 @@ sub deal {
     my @kinds = ([], [], [], [], []);
     push(@{$kinds[$ranks[$_]]}, $_) for (0..$#ranks);
 
+    my $flush_suit = $board[0]->suitx;
+    if (not all { $_->suitx == $flush_suit } @board[1..$#board]) {
+        $flush_suit = undef;
+    }
+
     return bless {
         cards => \@board,
         ranks => \@ranks,
         kinds => \@kinds,
+        flush_suit => $flush_suit,
     }, $class;
 }
 
@@ -137,6 +146,8 @@ sub full_house_ranks {
 }
 
 sub straight_ranks {
+    # TODO: handle "wheel"
+    # TODO: precompute
     my $self = shift;
     my @results = ();
     for (0..$#{$self->{ranks}}) {
@@ -148,4 +159,20 @@ sub straight_ranks {
         return @results if int(@results) == 5;
     }
     return ();
+}
+
+sub flush_ranks {
+    my $self = shift;
+    if (!defined($self->{flush_suit})) {
+        return ();
+    }
+    return map { $_->rankx } @{$self->{cards}};
+}
+
+sub straight_flush_ranks {
+    my $self = shift;
+    if (!defined($self->{flush_suit})) {
+        return ();
+    }
+    return $self->straight_ranks();
 }
