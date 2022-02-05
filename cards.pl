@@ -146,12 +146,14 @@ sub full_house_ranks {
 }
 
 sub straight_ranks {
-    # TODO: handle "wheel"
-    # TODO: precompute
     my $self = shift;
+    my $ranks = $self->{ranks};
     my @results = ();
-    for (0..$#{$self->{ranks}}) {
-        if ($self->{ranks}[$_] > 0) {
+    if ($ranks->[$#{$ranks}]) {
+        push(@results, $#{$ranks});
+    }
+    for (0..$#{$ranks}) {
+        if ($ranks->[$_] > 0) {
             push(@results, $_);
         } else {
             @results = ();
