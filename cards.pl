@@ -7,7 +7,7 @@ my $deck = Deck->new();
 
 my $board = Board->deal($deck);
 
-print join(', ', map { $_->repr } @$board), "\n";
+print $board->repr, "\n";
 
 package Board;
 
@@ -16,6 +16,11 @@ sub deal {
     my $deck = shift;
     my @board = $deck->deal(5);
     return bless \@board, $class;
+}
+
+sub repr {
+    my $self = shift;
+    return join(', ', map { $_->repr } @$self);
 }
 
 package Deck;
