@@ -9,17 +9,31 @@ my $board = Board->deal($deck);
 
 print $board->repr, "\n";
 
-printf "%20s: %s\n", "Pair", $board->of_a_kind_rank(2);
-printf "%20s: %s\n", "Two Pair", $board->two_pair_ranks();
-printf "%20s: %s\n", "3 of a Kind", $board->of_a_kind_rank(3);
-printf "%20s: %s\n", "Full House", $board->full_house_ranks();
-printf "%20s: %s\n", "4 of a Kind", $board->of_a_kind_rank(4);
+printf "%20s: %s\n", "Pair", Rank::repr($board->of_a_kind_rank(2));
+printf "%20s: %s\n", "Two Pair", Rank::repr($board->two_pair_ranks());
+printf "%20s: %s\n", "3 of a Kind", Rank::repr($board->of_a_kind_rank(3));
+printf "%20s: %s\n", "Full House",  Rank::repr($board->full_house_ranks());
+printf "%20s: %s\n", "4 of a Kind", Rank::repr($board->of_a_kind_rank(4));
+
+
+package Rank;
+
+use constant RANKS => qw<2 3 4 5 6 7 8 9 T J Q K A>;
+
+sub new {
+    my $class = shift;
+    my $x = shift;
+    return bless \$x, $class;
+}
+
+sub repr {
+    return join ', ', map { $_ ? (RANKS)[$$_] : '' } @_;
+}
 
 
 package Card;
 
 use constant SUITS => qw<s h d c>;
-use constant RANKS => qw<2 3 4 5 6 7 8 9 T J Q K A>;
 
 sub new {
     my $class = shift;
@@ -34,7 +48,7 @@ sub rankx {
 
 sub rank {
     my $self = shift;
-    return (RANKS)[$self->rankx];
+    return Rank->new($self->rankx);
 }
 
 sub suit {
@@ -44,7 +58,7 @@ sub suit {
 
 sub repr {
     my $self = shift;
-    return $self->rank . $self->suit;
+    return $self->rank->repr . $self->suit;
 }
 
 
@@ -100,18 +114,18 @@ sub of_a_kind_rank {
     my $kind = shift;
     my $ranks = $self->{kinds}->[$kind];
     if (int(@{$ranks}) != 1) {
-        return '';
+        return undef;
     }
-    return (Card::RANKS)[$ranks->[0]];
+    return Rank->new($ranks->[0]);
 }
 
 sub two_pair_ranks {
     my $self = shift;
     my $ranks = $self->{kinds}->[2];
     if (int(@{$ranks}) != 2) {
-        return '';
+        return ();
     }
-    return join(', ', map { (Card::RANKS)[$_] } @{$ranks});
+    return map { Rank->new($_) } @{$ranks};
 }
 
 sub full_house_ranks {
@@ -119,7 +133,7 @@ sub full_house_ranks {
     my $three = $self->of_a_kind_rank(3);
     my $two = $self->of_a_kind_rank(2);
     if (!$three or !$two) {
-        return '';
+        return ();
     }
-    return join(', ', map { (Card::RANKS)[$_] } ($three, $two));
+    return map { Rank->new($_) } ($three, $two);
 }
