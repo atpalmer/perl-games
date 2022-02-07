@@ -7,7 +7,7 @@ my $deck = Deck->new();
 
 my $board = Board->deal($deck);
 
-print $board->repr, "\n";
+print "$board\n";
 
 printf "%20s: %s\n", "Pair", Rank::repr($board->of_a_kind_rank(2));
 printf "%20s: %s\n", "Two Pair", Rank::repr($board->two_pair_ranks());
@@ -24,7 +24,7 @@ package Rank;
 use constant RANKS => qw<2 3 4 5 6 7 8 9 T J Q K A>;
 
 sub repr {
-    return join ', ', map { defined($_) ? (RANKS)[$_] : '<none>' } @_;
+    return join ', ', map { (RANKS)[$_] } @_;
 }
 
 
@@ -39,6 +39,8 @@ sub repr {
 
 
 package Card;
+
+use overload (q/""/ => \&str);
 
 sub new {
     my $class = shift;
@@ -57,7 +59,7 @@ sub suitx {
     return $$self / 13;
 }
 
-sub repr {
+sub str {
     my $self = shift;
     return Rank::repr($self->rankx) . Suit::repr($self->suitx);
 }
@@ -83,6 +85,8 @@ sub deal {
 package Board;
 
 use List::Util qw<any all>;
+
+use overload (q/""/ => \&str);
 
 sub deal {
     my $class = shift;
@@ -111,9 +115,9 @@ sub deal {
     }, $class;
 }
 
-sub repr {
+sub str {
     my $self = shift;
-    return join(', ', map { $_->repr } @{$self->{cards}});
+    return join ', ', @{$self->{cards}};
 }
 
 sub of_a_kind_rank {
