@@ -15,7 +15,7 @@ my @sorted = sort { $freq->score($b) <=> $freq->score($a) } @$words;
 
 my @result = filter(\@sorted, $OPTS->{'require'}, $OPTS->{'exclude'}, $OPTS->{'pattern'});
 
-print $_->string, "\n" for @result;
+print "$_\n" for @result;
 
 
 sub grab_words {
@@ -41,7 +41,7 @@ sub filter {
 
         all { $word->contains($_) } @required_letters
             and not any { $word->contains($_) } @excluded_letters
-            and $word->matches($pattern)
+            and $word =~ qr/$pattern/
 
     } @$words;
 }
@@ -106,6 +106,8 @@ sub score {
 
 package Word;
 
+use overload '""' => sub { $_[0]->{'string'} };
+
 sub new {
     my $class = shift;
     my $string = shift;
@@ -116,11 +118,6 @@ sub new {
         chars => \@chars,
         uniq => \%uniq,
     }, $class;
-}
-
-sub string {
-    my $self = shift;
-    return $self->{'string'};
 }
 
 sub chars {
@@ -137,10 +134,4 @@ sub contains {
     my $self = shift;
     my $letter = shift;
     return $self->{'uniq'}->{$letter};
-}
-
-sub matches {
-    my $self = shift;
-    my $pattern = shift;
-    return $self->string =~ qr/$pattern/;
 }
