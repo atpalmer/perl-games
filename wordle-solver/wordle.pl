@@ -8,12 +8,12 @@ use List::Util qw<all any>;
 
 my $OPTS = Options->parse();
 
-my $words = grab_words($OPTS->dict, $OPTS->count);
+my $words = grab_words($OPTS->{'dict'}, $OPTS->{'count'});
 
 my $freq = CharFrequency->new($words);
 my @sorted = sort { $freq->score($b) <=> $freq->score($a) } @$words;
 
-my @result = filter(\@sorted, $OPTS->require, $OPTS->exclude, $OPTS->pattern);
+my @result = filter(\@sorted, $OPTS->{'require'}, $OPTS->{'exclude'}, $OPTS->{'pattern'});
 
 print $_->string, "\n" for @result;
 
@@ -53,47 +53,31 @@ use Getopt::Long;
 
 sub parse {
     my $class = shift;
-    my $new = {};
-    GetOptions($new,
+    my %opts = ();
+    GetOptions(\%opts,
         'dict=s',
         'count=i',
         'require=s',
         'exclude=s',
         'pattern=s',
     ) or die 'Bad Arguments';
+
+    my %new;
+    tie %new, $class, \%opts;
+    return \%new;
+}
+
+sub TIEHASH {
+    my $class = shift;
+    my $new = shift;
     return bless $new, $class;
 }
 
-sub get {
+sub FETCH {
     my $self = shift;
     my $key = shift;
     die qq<No option "$key"> if not defined $self->{$key};
     return $self->{$key};
-}
-
-sub dict {
-    my $self = shift;
-    return $self->get('dict');
-}
-
-sub count {
-    my $self = shift;
-    return $self->get('count');
-}
-
-sub require {
-    my $self = shift;
-    return $self->get('require');
-}
-
-sub exclude {
-    my $self = shift;
-    return $self->get('exclude');
-}
-
-sub pattern {
-    my $self = shift;
-    return $self->get('pattern');
 }
 
 
