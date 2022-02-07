@@ -91,7 +91,7 @@ sub new {
     my $self = {};
 
     for my $word (@$words) {
-        map { $self->{$_} += 1 } $word->uniq();
+        $self->{$_}++ for $word->uniq;
     }
 
     return bless $self, $class;
@@ -100,7 +100,7 @@ sub new {
 sub score {
     my $self = shift;
     my $word = shift;
-    return sum map { $self->{$_} } $word->uniq();
+    return sum map { $self->{$_} } $word->uniq;
 }
 
 
@@ -111,18 +111,11 @@ use overload '""' => sub { $_[0]->{'string'} };
 sub new {
     my $class = shift;
     my $string = shift;
-    my @chars = split '', $string;
-    my %uniq = map { $_ => 1 } @chars;
+    my %uniq = map { $_ => 1 } split '', $string;
     return bless {
         string => $string,
-        chars => \@chars,
         uniq => \%uniq,
     }, $class;
-}
-
-sub chars {
-    my $self = shift;
-    return $self->{'chars'};
 }
 
 sub uniq {
