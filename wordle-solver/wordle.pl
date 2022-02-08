@@ -9,13 +9,9 @@ use List::Util qw<all any>;
 my $OPTS = Options->parse();
 
 my $words = grab_words($OPTS->{'dict'}, $OPTS->{'count'});
-
-my $freq = CharFrequency->new($words);
-my @sorted = sort { $freq->score($b) <=> $freq->score($a) } @$words;
-
-my @result = filter(\@sorted, $OPTS->{'require'}, $OPTS->{'exclude'}, $OPTS->{'pattern'});
-
-print "$_\n" for @result;
+my $sorted = score_sort($words);
+my $filtered = filter($sorted, $OPTS->{'require'}, $OPTS->{'exclude'}, $OPTS->{'pattern'});
+print "$_\n" for @$filtered;
 
 
 sub grab_words {
@@ -27,6 +23,13 @@ sub grab_words {
     return \@words;
 }
 
+sub score_sort {
+    my $words = shift;
+    my $freq = CharFrequency->new($words);
+    my @sorted = sort { $freq->score($b) <=> $freq->score($a) } @$words;
+    return \@sorted;
+}
+
 sub filter {
     my $words = shift;
     my $require = shift;
@@ -36,7 +39,7 @@ sub filter {
     my @required_letters = split '', $require;
     my @excluded_letters = split '', $exclude;
 
-    return grep {
+    my @filtered = grep {
         my $word = $_;
 
         all { $word->contains($_) } @required_letters
@@ -44,6 +47,8 @@ sub filter {
             and $word =~ qr/$pattern/
 
     } @$words;
+
+    return \@filtered;
 }
 
 
