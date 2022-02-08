@@ -77,7 +77,13 @@ sub has_full_house {
 sub straight_len {
     my $self = shift;
     my $len = 0;
-    map { $len = ($_) ? $len + 1 : 0 } @{$self->{counts}};
+    for (@{$self->{counts}}) {
+        if ($_ != 0) {
+            ++$len;
+        } else {
+            $len = 0;
+        }
+    }
     return $len;
 }
 
