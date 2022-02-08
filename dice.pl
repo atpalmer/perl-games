@@ -33,10 +33,9 @@ package Dice;
 
 sub roll {
     my $class = shift;
-    my @dice;
-    push(@dice, Die->random()) for (1..5);
+    my @dice = map { Die->random() } (0..4);
     my @counts = (0) x 6;
-    map { $counts[$_->index()]++ } @dice;
+    $counts[$_->index]++ for @dice;
     return bless {
         dice => \@dice,
         counts => \@counts,
