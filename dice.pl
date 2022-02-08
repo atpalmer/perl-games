@@ -44,13 +44,13 @@ sub roll {
 
 sub faces {
     my $self = shift;
-    return map { $_->face() } @{$self->{dice}};
+    return map { $_->face } @{$self->{dice}};
 }
 
 sub total {
     my $self = shift;
     my $total = 0;
-    map { $total += $_->face() } @{$self->{dice}};
+    $total += $_ for $self->faces;
     return $total;
 }
 
