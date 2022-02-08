@@ -7,14 +7,16 @@ use v5.10;
 package Die;
 
 sub from_face {
+    my $class = shift;
     my $face = shift;
     my $new = $face - 1;
-    return bless \$new, 'Die';
+    return bless \$new, $class;
 }
 
 sub random {
+    my $class = shift;
     my $new = int(rand(6));
-    return bless \$new, 'Die';
+    return bless \$new, $class;
 }
 
 sub index {
@@ -30,14 +32,15 @@ sub face {
 package Dice;
 
 sub roll {
+    my $class = shift;
     my @dice;
-    push(@dice, Die::random()) for (1..5);
+    push(@dice, Die->random()) for (1..5);
     my @counts = (0) x 6;
     map { $counts[$_->index()]++ } @dice;
     return bless {
         dice => \@dice,
         counts => \@counts,
-    }, 'Dice';
+    }, $class;
 }
 
 sub faces {
@@ -55,7 +58,7 @@ sub total {
 sub total_face {
     my $self = shift;
     my $face = shift;
-    my $diex = Die::from_face($face)->index();
+    my $diex = Die->from_face($face)->index();
     return $face * $self->{counts}->[$diex];
 }
 
@@ -106,7 +109,7 @@ sub scorecard {
 
 package main;
 
-my $dice = Dice::roll();
+my $dice = Dice->roll();
 
 say "Faces: ", map { "[$_]" } $dice->faces();
 say "Score Options:";
