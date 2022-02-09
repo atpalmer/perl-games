@@ -5,23 +5,49 @@ use warnings;
 
 use Algorithm::Permute;
 
-my $filename = shift @ARGV or die 'need arg: filename';
 my $input = shift @ARGV or die 'need arg: input';
+my $filename = shift @ARGV;
 
-open my $f, '<', $filename or die;
-my %words = map { chomp; $_ => 1 } <$f>;
-close $f;
+my %words;
+
+if (-f $filename) {
+    open my $f, '<', $filename or die;
+    %words = map { chomp; $_ => 1 } <$f>;
+    close $f;
+} else {
+    warn 'warning: no dictionary file';
+    tie %words, 'DummyDict';
+}
 
 chomp $input;
 my @chars = split '', $input;
 
-my %seen;
+for (my $r = scalar @chars; $r > 2; --$r) {
+    my $iter = Algorithm::Permute->new([@chars], $r);
 
-Algorithm::Permute::permute {
-    my $s = join('', @chars);
-    if ($words{$s}) {
-        print "$s\n" if not exists $seen{$s};
-        $seen{$s}++;
+    my %seen;
+    while (my @curr = $iter->next) {
+        my $s = join '', @curr;
+        if (exists $words{$s} and not exists $seen{$s}) {
+            $seen{$s}++;
+        }
     }
-} @chars;
+
+    for (sort keys %seen) {
+        print "$_\n";
+    }
+}
+
+
+package DummyDict;
+
+sub TIEHASH {
+    my $class = shift;
+    my $self = undef;
+    bless \$self, $class;
+}
+
+sub EXISTS {
+    1;
+}
 
