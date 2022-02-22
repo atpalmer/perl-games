@@ -38,7 +38,7 @@ package Suit {
 }
 
 package Card {
-    use overload (q/""/ => \&str);
+    use overload (q<""> => sub { Rank::repr($_[0]->rankx) . Suit::repr($_[0]->suitx) });
 
     sub new {
         my $class = shift;
@@ -55,11 +55,6 @@ package Card {
         use integer;
         my $self = shift;
         return $$self / 13;
-    }
-
-    sub str {
-        my $self = shift;
-        return Rank::repr($self->rankx) . Suit::repr($self->suitx);
     }
 }
 
@@ -82,7 +77,7 @@ package Deck {
 package Board {
     use List::Util qw<any all>;
 
-    use overload (q/""/ => \&str);
+    use overload (q<""> => sub { join ', ', @{$_[0]->{cards}} });
 
     sub deal {
         my $class = shift;
@@ -109,11 +104,6 @@ package Board {
             kinds => \@kinds,
             flush_suit => $flush_suit,
         }, $class;
-    }
-
-    sub str {
-        my $self = shift;
-        return join ', ', @{$self->{cards}};
     }
 
     sub of_a_kind_rank {
