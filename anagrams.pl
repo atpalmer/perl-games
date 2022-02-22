@@ -39,15 +39,14 @@ for (my $r = scalar @chars; $r > 2; --$r) {
 }
 
 
-package DummyDict;
+package DummyDict {
+    sub TIEHASH {
+        my $class = shift;
+        my $self = undef;
+        bless \$self, $class;
+    }
 
-sub TIEHASH {
-    my $class = shift;
-    my $self = undef;
-    bless \$self, $class;
+    sub EXISTS {
+        1;
+    }
 }
-
-sub EXISTS {
-    1;
-}
-
