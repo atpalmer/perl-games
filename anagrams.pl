@@ -10,7 +10,7 @@ my $filename = shift @ARGV;
 
 my %words;
 
-if (-f $filename) {
+if (defined($filename)) {
     open my $f, '<', $filename or die;
     %words = map { chomp; $_ => 1 } <$f>;
     close $f;
